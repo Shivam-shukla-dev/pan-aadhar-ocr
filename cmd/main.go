@@ -17,6 +17,14 @@ import (
 )
 
 func main() {
+	fmt.Println(validate())
+}
+
+func toBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+func validate() string {
 	// Get base64 from json request
 	byt, err := ioutil.ReadFile("/Users/shivamshukla/Downloads/aadh.png")
 	if err != nil {
@@ -66,10 +74,7 @@ func main() {
 	pattern := `\d{4}\s\d{4}\s\d{4}`
 	re := regexp.MustCompile(pattern)
 	match := re.FindAllString(text, -1)
-	//fmt.Println(text)
-	fmt.Println(match[0])
-}
-
-func toBase64(b []byte) string {
-	return base64.StdEncoding.EncodeToString(b)
+	// fmt.Println(text)
+	//fmt.Println(match[0])
+	return match[0]
 }
