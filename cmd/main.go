@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/base64"
+	"flag"
 	"fmt"
 	"image"
 	"image/jpeg"
@@ -17,20 +18,38 @@ import (
 )
 
 func main() {
-	fmt.Println(validate())
+	var PANPath, AAdharCardPath string
+	flag.StringVar(&PANPath, "p", "nil", "path to PAN Card image")
+	flag.StringVar(&AAdharCardPath, "a", "nil", "path to AAdhar Card Image")
+	flag.Parse()
+	if PANPath != "nil" {
+		fmt.Println("PAN Card image passed")
+		PANCARDNumber := validate(PANPath, "PAN")
+		fmt.Println("PAN Card Number: ", PANCARDNumber)
+	} else {
+		fmt.Println("PAN Card details not passed")
+	}
+	if AAdharCardPath != "nil" {
+		fmt.Println("AAdhar Card image passed")
+		AAdharCARDNumber := validate(AAdharCardPath, "AADHAR")
+		fmt.Println("AAdhar Card Number: ", AAdharCARDNumber)
+	} else {
+		fmt.Println("AAdhar card details not passed")
+	}
+
 }
 
 func toBase64(b []byte) string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
-func validate() string {
+func validate(path, cardType string) string {
 	// Get base64 from json request
-	byt, err := ioutil.ReadFile("/Users/shivamshukla/Downloads/aadh.png")
+	byt, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-
+	var pattern string
 	var base64image string
 
 	// Append the base64 encoded output
@@ -71,7 +90,12 @@ func validate() string {
 	text, _ := client.Text()
 	// return the response
 	text = strings.Replace(text, "\n", " ", -1)
-	pattern := `\d{4}\s\d{4}\s\d{4}`
+	if cardType == "AADHAR" {
+		pattern = `\d{4}\s\d{4}\s\d{4}`
+	}
+	if cardType == "PAN" {
+		pattern = "[A-Z]{5}[0-9]{4}[A-Z]{1}"
+	}
 	re := regexp.MustCompile(pattern)
 	match := re.FindAllString(text, -1)
 	// fmt.Println(text)
